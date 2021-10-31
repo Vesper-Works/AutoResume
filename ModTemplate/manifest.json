@@ -1,8 +1,8 @@
 {
-  "filename": "ModTemplate.dll",
-  "author": "Raicuparta",
-  "name": "Mod Template",
-  "uniqueName": "Raicuparta.ModTemplate",
+  "filename": "AutoResume.dll",
+  "author": "Vesper",
+  "name": "Auto Resume",
+  "uniqueName": "Vesper.AutoResume",
   "version": "0.1.0",
-  "owmlVersion": "2.0.0"
+  "owmlVersion": "2.1.0"
 }
