@@ -6,53 +6,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 namespace AutoResume
 {
-    class MainBehaviour : ModBehaviour
+    class AutoResume : ModBehaviour
     {
-        //private void Start()
-        //{
-        //    ModHelper.Console.WriteLine("Skipping splash screen...");
-        //    var titleScreenAnimation = FindObjectOfType<TitleScreenAnimation>();
-        //    titleScreenAnimation.SetValue("_fadeDuration", 0);
-        //    titleScreenAnimation.SetValue("_gamepadSplash", false);
-        //    titleScreenAnimation.SetValue("_introPan", false);
-        //    titleScreenAnimation.Invoke("FadeInTitleLogo");
-        //    ModHelper.Console.WriteLine("Done!");
-
-
-        //    foreach (var item in FindObjectsOfType<Selectable>())
-        //    {
-        //        if (item.name.ToLower().Contains("resume"))
-        //        {
-        //            item.GetComponent<SubmitActionLoadScene>().Invoke("ConfirmSubmit");
-
-        //        }
-        //    }
-
-        //    //FindObjectOfType<SubmitActionLoadScene>().Invoke("ConfirmSubmit");
-
-        //    ModHelper.Events.Scenes.OnCompleteSceneChange += OnCompleteSceneChange;
-        //}
-
-        //void LateStuff()
-        //{
-        //    //ModHelper.Console.WriteLine("Finding _resumeGameAction...");
-        //    //var loadAction = typeof(TitleScreenManager).GetField("_resumeGameAction");
-        //    //ModHelper.Console.WriteLine("Done!");
-
-        //    //ModHelper.Console.WriteLine("Finding TitleScreenManager...");
-        //    //loadAction.GetValue(FindObjectOfType<TitleScreenManager>()).Invoke("ConfirmSubmit");
-        //    //ModHelper.Console.WriteLine("Done!");
-
-        //}
-
-        //private void OnCompleteSceneChange(OWScene oldScene, OWScene newScene)
-        //{
-        //   if(newScene == OWScene.SolarSystem)
-        //    {
-        //        FindObjectOfType<PlayerCameraEffectController>().OpenEyes(0.5f, true);
-        //    }
-        //}
-
         bool _isOpenEyesSkipped = false;
         bool _isSolarSystemLoaded = false;
 
