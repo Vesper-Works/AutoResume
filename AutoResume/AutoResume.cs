@@ -1,35 +1,30 @@
-﻿using System;
-using OWML;
-using OWML.ModHelper;
-using OWML.ModHelper.Events;
+﻿using OWML.ModHelper;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 namespace AutoResume
 {
     class AutoResume : ModBehaviour
     {
-        bool _isOpenEyesSkipped = false;
-        bool _isSolarSystemLoaded = false;
-
         private void Start()
         {
             // Skip flash screen.
             var titleScreenAnimation = FindObjectOfType<TitleScreenAnimation>();
-            titleScreenAnimation.SetValue("_fadeDuration", 0);
-            titleScreenAnimation.SetValue("_gamepadSplash", false);
-            titleScreenAnimation.SetValue("_introPan", false);
-            titleScreenAnimation.Invoke("FadeInTitleLogo");
+            titleScreenAnimation._fadeDuration = 0;
+            titleScreenAnimation._gamepadSplash = false;
+            titleScreenAnimation._introPan = false;
+
+            var titleScreenManager = FindObjectOfType<TitleScreenManager>();
+            titleScreenManager.FadeInTitleLogo();
 
             // Skip menu fade.
             var titleAnimationController = FindObjectOfType<TitleAnimationController>();
-            titleAnimationController.SetValue("_logoFadeDelay", 0.001f);
-            titleAnimationController.SetValue("_logoFadeDuration", 0.001f);
-            titleAnimationController.SetValue("_optionsFadeDelay", 0.001f);
-            titleAnimationController.SetValue("_optionsFadeDuration", 0.001f);
-            titleAnimationController.SetValue("_optionsFadeSpacing", 0.001f);
+            titleAnimationController._logoFadeDelay = 0.001f;
+            titleAnimationController._logoFadeDuration = 0.001f;
+            titleAnimationController._optionsFadeDelay = 0.001f;
+            titleAnimationController._optionsFadeDuration = 0.001f;
+            titleAnimationController._optionsFadeSpacing = 0.001f;
 
             // Need to wait a little bit for some reason.
-            Invoke("Resume", 0.5f);
+            ModHelper.Events.Unity.FireOnNextUpdate(Resume);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -37,45 +32,34 @@ namespace AutoResume
         private void Resume()
         {
             // Simulate "resume game" button press.
-            var resume = FindObjectOfType<TitleScreenManager>().GetValue<SubmitActionLoadScene>("_resumeGameAction");
-            resume.Invoke("ConfirmSubmit");
+            FindObjectOfType<TitleScreenManager>()._resumeGameAction.ConfirmSubmit();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name == "SolarSystem")
-            {
-                _isSolarSystemLoaded = true;
-                _isOpenEyesSkipped = false;
-            }
+            if (scene.name == "SolarSystem") ModHelper.Events.Unity.FireOnNextUpdate(SkipWakeUp);
         }
 
-        private void LateUpdate()
+        private void SkipWakeUp()
         {
-            if (!_isOpenEyesSkipped && _isSolarSystemLoaded)
-            {
-                _isOpenEyesSkipped = true;
+            // Skip wake up animation.
+            var cameraEffectController = FindObjectOfType<PlayerCameraEffectController>();
+            cameraEffectController.OpenEyes(0, true);
+            cameraEffectController._wakeLength = 0f;
+            cameraEffectController._waitForWakeInput = false;
 
-                // Skip wake up animation.
-                var cameraEffectController = FindObjectOfType<PlayerCameraEffectController>();
-                cameraEffectController.OpenEyes(0, true);
-                cameraEffectController.SetValue("_wakeLength", 0f);
-                cameraEffectController.SetValue("_waitForWakeInput", false);
+            // Skip wake up prompt.
+            LateInitializerManager.pauseOnInitialization = false;
+            Locator.GetPauseCommandListener().RemovePauseCommandLock();
+            Locator.GetPromptManager().RemoveScreenPrompt(cameraEffectController._wakePrompt);
+            OWTime.Unpause(OWTime.PauseType.Sleeping);
+            cameraEffectController.WakeUp();
 
-                // Skip wake up prompt.
-                LateInitializerManager.pauseOnInitialization = false;
-                Locator.GetPauseCommandListener().RemovePauseCommandLock();
-                Locator.GetPromptManager().RemoveScreenPrompt(cameraEffectController.GetValue<ScreenPrompt>("_wakePrompt"));
-                OWTime.Unpause(OWTime.PauseType.Sleeping);
-                cameraEffectController.Invoke("WakeUp");
-
-                // Enable all inputs immedeately.
-                OWInput.ChangeInputMode(InputMode.Character);
-                typeof(OWInput).SetValue("_inputFadeFraction", 0f);
-                GlobalMessenger.FireEvent("TakeFirstFlashbackSnapshot");
-            }
+            // Enable all inputs immediately.
+            OWInput.ChangeInputMode(InputMode.Character);
+            (OWInput.SharedInputManager as InputManager)._inputFadeFraction = 0f;
+            GlobalMessenger.FireEvent("TakeFirstFlashbackSnapshot");
         }
     }
-
 }
 
